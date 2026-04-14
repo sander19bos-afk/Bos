@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bos Tegelwerken — Offerte</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --rood:#C0111F;--rood-dk:#8f000d;--rood-lt:#fff0f0;--rood-bd:#f5b3b8;
+  --zwart:#161616;--zwart2:#2a2a2a;
+  --grijs:#f5f5f5;--grijs2:#e9e9e9;--grijs3:#d0d0d0;
+  --tekst:#161616;--muted:#777;--wit:#fff;
+  --nav-h:64px;--top-h:54px;--radius:12px;
+}
+html,body{height:100%;overflow:hidden;background:var(--grijs);}
+.app{font-family:'DM Sans',sans-serif;color:var(--tekst);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* TOP BAR */
+.topbar{height:var(--top-h);background:var(--zwart);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:32px;height:32px;background:var(--rood);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:17px;height:17px;fill:white;}
+.logo-name{font-size:15px;font-weight:700;color:white;}
+.logo-sub{font-size:9px;color:#888;}
+.cart-fab{background:var(--rood);border:none;border-radius:22px;padding:8px 16px;display:flex;align-items:center;gap:7px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.cart-fab:active{background:var(--rood-dk);}
+.cart-num{background:white;color:var(--rood);border-radius:8px;padding:1px 6px;font-size:10px;font-weight:700;min-width:18px;text-align:center;}
+
+/* SCROLL AREA */
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + 12px);-webkit-overflow-scrolling:touch;}
+
+/* BOTTOM NAV */
+.bottom-nav{height:var(--nav-h);background:var(--zwart);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;z-index:100;border-top:1px solid #2a2a2a;padding-bottom:env(safe-area-inset-bottom);}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:none;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;padding:8px 4px;}
+.bnav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.bnav-btn.active{color:var(--rood);}
+
+/* VIEWS */
+.view{display:none;}.view.active{display:block;}
+
+/* ===== OFFERTE VIEW ===== */
+.section-pad{padding:14px 14px 0;}
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--rood);margin-bottom:8px;}
+
+.rooms-scroll{display:flex;gap:10px;overflow-x:auto;padding:0 14px 14px;scrollbar-width:none;}
+.rooms-scroll::-webkit-scrollbar{display:none;}
+.room-pill{flex-shrink:0;border:2px solid var(--grijs2);border-radius:var(--radius);padding:11px 14px;cursor:pointer;background:white;text-align:center;min-width:88px;transition:all 0.12s;}
+.room-pill.active{border-color:var(--rood);background:var(--rood-lt);}
+.room-emoji{font-size:24px;display:block;margin-bottom:4px;}
+.room-name{font-size:11px;font-weight:600;white-space:nowrap;}
+
+.sug-banner{margin:0 14px 10px;background:var(--rood-lt);border:1px solid var(--rood-bd);border-radius:9px;padding:10px 13px;font-size:12px;color:var(--rood-dk);font-weight:500;display:none;align-items:center;gap:7px;}
+.sug-banner.show{display:flex;}
+
+.chips-scroll{display:flex;gap:7px;overflow-x:auto;padding:0 14px 10px;scrollbar-width:none;}
+.chips-scroll::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;border:1.5px solid var(--grijs2);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;background:white;color:var(--muted);font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.chip.active{background:var(--rood);color:white;border-color:var(--rood);}
+
+.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px;}
+@media(min-width:600px){.products-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:900px){.products-grid{grid-template-columns:repeat(4,1fr);}}
+
+.pcard{background:white;border-radius:var(--radius);padding:13px;border:2px solid var(--grijs2);position:relative;}
+.pcard.suggested{border-color:var(--rood-bd);}
+.pcard.in-cart{border-color:var(--rood);background:var(--rood-lt);}
+.sug-dot{position:absolute;top:9px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--rood);}
+.pcard-emoji{font-size:24px;display:block;margin-bottom:6px;}
+.pcard-name{font-size:12px;font-weight:600;line-height:1.35;margin-bottom:2px;}
+.pcard-unit{font-size:10px;color:var(--muted);margin-bottom:4px;}
+.pcard-price{font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:var(--rood);margin-bottom:10px;}
+.pcard-controls{display:flex;align-items:center;gap:5px;}
+.pqty-btn{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--grijs2);background:var(--grijs);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--tekst);flex-shrink:0;}
+.pqty-btn:active{background:var(--grijs3);}
+.pqty-inp{flex:1;height:32px;border:1.5px solid var(--grijs2);border-radius:7px;text-align:center;font-size:13px;font-family:'DM Mono',monospace;background:white;color:var(--tekst);min-width:0;}
+.padd-btn{width:32px;height:32px;border-radius:8px;border:none;background:var(--rood);color:white;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-weight:700;}
+.padd-btn.added{background:#2a7a14;}
+.padd-btn:active{opacity:.8;}
+
+/* ===== OFFERTE SHEET ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.sheet{position:fixed;bottom:0;left:0;right:0;background:white;border-radius:20px 20px 0 0;z-index:301;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:92vh;display:flex;flex-direction:column;}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{width:40px;height:5px;background:var(--grijs3);border-radius:3px;margin:12px auto 0;}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 8px;}
+.sheet-title{font-size:16px;font-weight:700;}
+.sheet-close{background:var(--grijs);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+.sheet-body{overflow-y:auto;flex:1;padding:0 16px 32px;-webkit-overflow-scrolling:touch;}
+
+.oempty{text-align:center;padding:24px 12px;color:var(--muted);font-size:13px;}
+.oitem{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:0.5px solid var(--grijs2);}
+.oitem-info{flex:1;min-width:0;}
+.oitem-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.oitem-detail{font-size:10px;color:var(--muted);}
+.oitem-ctrls{display:flex;align-items:center;gap:4px;}
+.oqty-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--grijs2);background:var(--grijs);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--tekst);}
+.oqty-inp{width:34px;height:26px;border:1px solid var(--grijs2);border-radius:5px;text-align:center;font-size:11px;font-family:'DM Mono',monospace;background:white;color:var(--tekst);}
+.oitem-price{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap;}
+.oitem-del{background:none;border:none;color:#bbb;cursor:pointer;font-size:18px;padding:0 0 0 4px;line-height:1;}
+
+/* Manuren */
+.mu-section{background:var(--grijs);border-radius:10px;padding:12px 13px;margin-top:13px;}
+.mu-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:9px;}
+.mu-row{display:flex;align-items:center;gap:5px;padding:6px 0;border-bottom:.5px solid var(--grijs2);}
+.mu-row:last-of-type{border-bottom:none;}
+.mu-name{font-size:11px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mu-inp{height:26px;border:1px solid var(--grijs2);border-radius:5px;text-align:center;font-size:11px;font-family:'DM Mono',monospace;background:white;color:var(--tekst);}
+.mu-tot{font-size:11px;font-weight:700;font-family:'DM Mono',monospace;min-width:50px;text-align:right;}
+.mu-del{background:none;border:none;color:#bbb;cursor:pointer;font-size:16px;padding:0 0 0 4px;}
+.mu-add-form{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.mu-add-form input{height:36px;border:1.5px solid var(--grijs2);border-radius:8px;padding:0 9px;font-size:13px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);}
+.mu-add-form input.mono{font-family:'DM Mono',monospace;text-align:center;}
+.mu-add-form button{height:36px;border:none;border-radius:8px;background:var(--rood);color:white;font-size:13px;font-weight:600;padding:0 14px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+
+/* Totalen */
+.totalen{margin-top:13px;padding-top:11px;border-top:1px solid var(--grijs2);}
+.tot-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;}
+.tot-row.bold{color:var(--tekst);font-weight:600;}
+.marge-row{display:flex;align-items:center;gap:8px;margin:5px 0;}
+.marge-lbl{font-size:11px;color:var(--muted);}
+.marge-inp{width:54px;height:30px;border:1.5px solid var(--grijs2);border-radius:7px;text-align:center;font-size:13px;font-family:'DM Mono',monospace;background:white;color:var(--tekst);}
+.tot-final{display:flex;justify-content:space-between;background:var(--zwart);color:white;border-radius:10px;padding:12px 14px;margin-top:9px;font-weight:700;font-size:15px;font-family:'DM Mono',monospace;}
+
+/* Klantformulier */
+.klant-form{margin-top:13px;padding-top:11px;border-top:1px solid var(--grijs2);display:flex;flex-direction:column;gap:8px;}
+.flbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+.klant-form input{width:100%;height:42px;border:1.5px solid var(--grijs2);border-radius:9px;padding:0 12px;font-size:14px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.bedrijf-blok{background:var(--grijs);border-radius:10px;padding:11px 13px;}
+.bedrijf-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:7px;}
+.bedrijf-blok input{width:100%;height:38px;border:1.5px solid var(--grijs2);border-radius:8px;padding:0 10px;font-size:13px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);margin-bottom:6px;}
+.bedrijf-blok input:last-child{margin-bottom:0;}
+.bedrijf-blok .frow input{margin-bottom:0;}
+.print-btn{width:100%;height:50px;background:var(--rood);color:white;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:9px;}
+.print-btn:disabled{background:var(--grijs2);color:var(--muted);cursor:not-allowed;}
+.print-btn:active:not(:disabled){background:var(--rood-dk);}
+.hint{background:#e8f0f8;border-radius:8px;padding:9px 11px;font-size:10px;color:#1a4a78;line-height:1.5;}
+
+/* ===== BEHEER VIEW ===== */
+.beheer-wrap{padding:14px;}
+.bsect{margin-bottom:18px;}
+.bsect-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+.bsect-title{font-size:14px;font-weight:700;}
+.btn-add{height:34px;background:var(--zwart);color:white;border:none;border-radius:8px;padding:0 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn-rood{background:var(--rood)!important;}
+.btn-rood:active{background:var(--rood-dk)!important;}
+.save-flash{font-size:11px;color:#2a7a14;font-weight:600;opacity:0;transition:opacity .3s;}
+.save-flash.show{opacity:1;}
+
+.cat-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.cat-pill{display:flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--grijs2);border-radius:22px;padding:6px 12px 6px 14px;font-size:13px;font-weight:500;}
+.cat-pill-del{background:none;border:none;cursor:pointer;color:#bbb;font-size:16px;padding:0;line-height:1;display:flex;align-items:center;}
+.cat-pill-del:active{color:var(--rood);}
+.cat-add-row{display:flex;gap:8px;margin-top:11px;}
+.cat-add-inp{flex:1;height:42px;border:1.5px solid var(--grijs2);border-radius:9px;padding:0 12px;font-size:14px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);}
+
+.filter-row{display:flex;gap:8px;margin-bottom:11px;align-items:center;}
+.filter-row input{flex:1;height:42px;border:1.5px solid var(--grijs2);border-radius:9px;padding:0 13px;font-size:14px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);}
+.filter-row select{height:42px;border:1.5px solid var(--grijs2);border-radius:9px;padding:0 9px;font-size:13px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);}
+
+.nieuw-blok{background:var(--grijs);border-radius:var(--radius);padding:14px;margin-bottom:12px;display:none;}
+.nieuw-blok.open{display:block;}
+.nieuw-blok .flbl{display:block;margin-bottom:5px;}
+.nieuw-blok input,.nieuw-blok select{width:100%;height:42px;border:1.5px solid var(--grijs2);border-radius:9px;padding:0 12px;font-size:14px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);margin-bottom:9px;}
+.nieuw-blok .frow input{margin-bottom:0;}
+.nieuw-blok .frow{gap:8px;}
+.nieuw-blok .btn-row{display:flex;gap:8px;margin-top:4px;}
+
+.plist{display:flex;flex-direction:column;gap:9px;}
+.pbcard{background:white;border-radius:var(--radius);border:1.5px solid var(--grijs2);overflow:hidden;}
+.pbcard-head{display:flex;align-items:center;gap:11px;padding:12px 14px;cursor:pointer;}
+.pb-emoji{width:40px;height:40px;border-radius:9px;background:var(--grijs);font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pb-info{flex:1;min-width:0;}
+.pb-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pb-meta{font-size:10px;color:var(--muted);}
+.pb-price{font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:var(--rood);white-space:nowrap;}
+.pb-arrow{color:var(--muted);font-size:16px;flex-shrink:0;}
+.pbcard-body{display:none;border-top:1px solid var(--grijs2);padding:14px;}
+.pbcard-body.open{display:block;}
+.pb-field{margin-bottom:11px;}
+.pb-field label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px;}
+.pb-field input,.pb-field select{width:100%;height:42px;border:1.5px solid var(--grijs2);border-radius:9px;padding:0 12px;font-size:14px;font-family:'DM Sans',sans-serif;background:white;color:var(--tekst);}
+.pb-field input.mono{font-family:'DM Mono',monospace;}
+.pb-field .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pb-actions{display:flex;gap:8px;margin-top:4px;}
+.btn-save{flex:1;height:44px;background:var(--rood);color:white;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-del{height:44px;background:var(--rood-lt);color:var(--rood);border:1.5px solid var(--rood-bd);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0 16px;}
+.btn-del:active{background:var(--rood);color:white;}
+
+.reset-btn{width:100%;height:42px;background:var(--grijs2);color:var(--tekst);border:none;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:10px;}
+.reset-btn:active{background:var(--grijs3);}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(12px);background:var(--zwart);color:white;padding:10px 18px;border-radius:22px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;opacity:0;transition:all .2s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 3h4v4H3zm5 0h4v4H8zm5 0h4v4h-4zM3 8h4v4H3zm5 0h4v4H8zm5 0h4v4h-4zM3 13h4v4H3zm5 0h4v4H8zm5 0h4v4h-4z"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">Bos Tegelwerken</div>
+        <div class="logo-sub">Offerte systeem</div>
+      </div>
+    </div>
+    <button class="cart-fab" onclick="openSheet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Offerte <span class="cart-num" id="cart-num">0</span>
+    </button>
+  </div>
+
+  <!-- SCROLL AREA -->
+  <div class="scroll-area" id="scroll-area">
+
+    <!-- OFFERTE VIEW -->
+    <div class="view active" id="view-offerte">
+      <div class="section-pad"><div class="section-label">Kies ruimte</div></div>
+      <div class="rooms-scroll" id="rooms-scroll"></div>
+
+      <div class="sug-banner" id="sug-banner">
+        <span>★</span><span id="sug-text"></span>
+      </div>
+
+      <div class="section-pad"><div class="section-label">Categorie</div></div>
+      <div class="chips-scroll" id="chips-scroll"></div>
+
+      <div class="section-pad"><div class="section-label" id="prod-label">Alle producten</div></div>
+      <div class="products-grid" id="products-grid"></div>
+    </div>
+
+    <!-- BEHEER VIEW -->
+    <div class="view" id="view-beheer">
+      <div class="beheer-wrap">
+
+        <div class="bsect">
+          <div class="bsect-head">
+            <div class="bsect-title">Categorieën</div>
+            <span class="save-flash" id="save-flash">✓ Opgeslagen</span>
+          </div>
+          <div class="cat-pills" id="cat-pills"></div>
+          <div class="cat-add-row">
+            <input class="cat-add-inp" placeholder="Nieuwe categorie..." id="new-cat-inp">
+            <button class="btn-add btn-rood" onclick="addCat()">+ Toevoegen</button>
+          </div>
+        </div>
+
+        <div class="bsect">
+          <div class="bsect-head">
+            <div class="bsect-title">Producten</div>
+            <button class="btn-add" onclick="toggleNieuw()">+ Nieuw product</button>
+          </div>
+
+          <div class="nieuw-blok" id="nieuw-blok">
+            <span class="flbl">Emoji / icoon</span>
+            <input placeholder="📦" id="np-emoji" style="width:64px;display:inline-block;margin-right:8px;margin-bottom:9px;">
+            <span class="flbl">Naam</span>
+            <input placeholder="Productnaam" id="np-naam">
+            <span class="flbl">Categorie</span>
+            <select id="np-cat" style="margin-bottom:9px;"></select>
+            <div class="frow" style="margin-bottom:9px;">
+              <div><span class="flbl">Eenheid</span><input placeholder="zak 25kg" id="np-unit" style="margin-bottom:0;width:100%;"></div>
+              <div><span class="flbl">Prijs (€)</span><input type="number" min="0" step="0.01" placeholder="0.00" id="np-prijs" style="margin-bottom:0;width:100%;font-family:'DM Mono',monospace;"></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn-save" onclick="saveNieuw()">Toevoegen</button>
+              <button class="btn-del" onclick="toggleNieuw()">Annuleer</button>
+            </div>
+          </div>
+
+          <div class="filter-row">
+            <input placeholder="Zoeken op naam..." oninput="renderProdList()" id="b-search">
+            <select onchange="renderProdList()" id="b-cat-filter">
+              <option value="">Alle</option>
+            </select>
+          </div>
+          <div class="plist" id="plist"></div>
+        </div>
+
+        <button class="reset-btn" onclick="resetDefault()">↺ Terugzetten naar standaard</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="bnav-btn active" id="bnav-offerte" onclick="switchView('offerte')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Materialen
+    </button>
+    <button class="bnav-btn" id="bnav-beheer" onclick="switchView('beheer')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Beheer
+    </button>
+  </div>
+</div>
+
+<!-- OFFERTE SHEET -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <div class="sheet-title">Offerte</div>
+    <button class="sheet-close" onclick="closeSheet()">×</button>
+  </div>
+  <div class="sheet-body">
+    <div id="oitems"><div class="oempty">Nog geen materialen toegevoegd</div></div>
+
+    <div class="mu-section">
+      <div class="mu-sec-title">Arbeid / Manuren</div>
+      <div id="mu-rows"></div>
+      <div class="mu-add-form">
+        <input style="flex:1;min-width:100px;" placeholder="Omschrijving" id="mu-desc">
+        <input class="mono" type="number" min="0.5" step="0.5" value="8" id="mu-uren" style="width:50px;" title="Uren">
+        <span style="font-size:12px;color:var(--muted);align-self:center;">u ×</span>
+        <input class="mono" type="number" min="0" value="56" id="mu-tarief" style="width:56px;" title="€/u">
+        <span style="font-size:12px;color:var(--muted);align-self:center;">€/u</span>
+        <button onclick="addMu()">+ Arbeid</button>
+      </div>
+    </div>
+
+    <div class="totalen">
+      <div class="tot-row"><span>Materiaalkosten (inkoop)</span><span id="t-mat-raw">€ 0,00</span></div>
+      <div class="marge-row">
+        <span class="marge-lbl">Marge materiaal</span>
+        <input class="marge-inp" type="number" id="marge-inp" value="20" min="0" oninput="updateTotals()"> %
+      </div>
+      <div class="tot-row bold"><span>Materiaal incl. marge</span><span id="t-mat">€ 0,00</span></div>
+      <div class="tot-row bold"><span>Arbeid totaal</span><span id="t-arb">€ 0,00</span></div>
+      <div class="tot-row" style="margin-top:7px;padding-top:7px;border-top:1px solid var(--grijs2)"><span>Subtotaal excl. BTW</span><span id="t-excl">€ 0,00</span></div>
+      <div class="tot-row"><span>BTW 21%</span><span id="t-btw">€ 0,00</span></div>
+      <div class="tot-final"><span>Totaal incl. BTW</span><span id="t-incl">€ 0,00</span></div>
+    </div>
+
+    <div class="klant-form">
+      <div class="bedrijf-blok">
+        <div class="bedrijf-lbl">Bedrijfsgegevens</div>
+        <input placeholder="Bedrijfsnaam" id="f-bedrijf" value="Bos Tegelwerken">
+        <input placeholder="Adres bedrijf" id="f-adres">
+        <div class="frow">
+          <input placeholder="Telefoon" id="f-tel">
+          <input placeholder="KVK" id="f-kvk">
+        </div>
+      </div>
+      <div class="flbl" style="margin-top:4px;">Klantgegevens</div>
+      <input placeholder="Naam klant" id="f-klant">
+      <input placeholder="Adres klant" id="f-klant-adres">
+      <div class="frow">
+        <input placeholder="Offerte nr." id="f-nr" value="2025-001">
+        <input placeholder="Datum" id="f-datum">
+      </div>
+      <input placeholder="Omschrijving werk" id="f-omschr">
+      <button class="print-btn" id="print-btn" onclick="openPrint()" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Afdrukken / Opslaan als PDF
+      </button>
+      <div class="hint">Kies bij <strong>Bestemming → "Opslaan als PDF"</strong> in het printvenster.</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_CATS=['Lijmen','Voegmortel','Profielen','Afdichting','Gereedschap','Ondervloer'];
+const DEFAULT_PRODS=[
+  {id:'tl-std',emoji:'🪣',name:'Tegellijm standaard',cat:'Lijmen',unit:'zak 25kg',price:12.50},
+  {id:'tl-flex',emoji:'🪣',name:'Tegellijm flexibel (C2)',cat:'Lijmen',unit:'zak 25kg',price:19.90},
+  {id:'tl-xxl',emoji:'🪣',name:'Tegellijm XL (groot formaat)',cat:'Lijmen',unit:'zak 25kg',price:24.50},
+  {id:'tl-bui',emoji:'🪣',name:'Tegellijm buiten/vorstbestendig',cat:'Lijmen',unit:'zak 25kg',price:21.00},
+  {id:'vm-wit',emoji:'⬜',name:'Voegmortel wit',cat:'Voegmortel',unit:'zak 5kg',price:8.90},
+  {id:'vm-gri',emoji:'⬛',name:'Voegmortel grijs',cat:'Voegmortel',unit:'zak 5kg',price:8.90},
+  {id:'vm-ant',emoji:'🖤',name:'Voegmortel antraciet',cat:'Voegmortel',unit:'zak 5kg',price:9.50},
+  {id:'vm-cln',emoji:'🧪',name:'Cleanfuga (schimmelwerend)',cat:'Voegmortel',unit:'zak 5kg',price:14.90},
+  {id:'pr-rvs',emoji:'📏',name:'Tegelprofiel RVS 2,5m',cat:'Profielen',unit:'stuk',price:6.50},
+  {id:'pr-alu',emoji:'📐',name:'Tegelprofiel alu buiten 2,5m',cat:'Profielen',unit:'stuk',price:7.90},
+  {id:'pr-sbt',emoji:'📏',name:'Stootbordprofiel 1m',cat:'Profielen',unit:'stuk',price:4.20},
+  {id:'af-sil',emoji:'💉',name:'Siliconenkit wit 310ml',cat:'Afdichting',unit:'koker',price:4.50},
+  {id:'af-wat',emoji:'🛡️',name:'Waterkering/folie 10m²',cat:'Afdichting',unit:'rol',price:29.00},
+  {id:'af-pri',emoji:'🖌️',name:'Hechtprimer 5L',cat:'Afdichting',unit:'emmer',price:18.50},
+  {id:'ov-mat',emoji:'🟫',name:'Ondervloermat/ontkoppeling',cat:'Ondervloer',unit:'m²',price:3.80},
+  {id:'gr-niv',emoji:'🔧',name:'Nivelleerset (200 stuks)',cat:'Gereedschap',unit:'set',price:22.00},
+  {id:'gr-krx',emoji:'➕',name:'Tegelkruisjes 3mm (500 st)',cat:'Gereedschap',unit:'zak',price:3.20},
+  {id:'gr-sni',emoji:'✂️',name:'Tegelsnijder huur/dag',cat:'Gereedschap',unit:'dag',price:18.00},
+  {id:'gr-rei',emoji:'🧴',name:'Tegelreiniger 1L',cat:'Gereedschap',unit:'fles',price:7.90},
+];
+const ROOMS=[
+  {id:'badkamer',name:'Badkamer',emoji:'🛁',sug:['tl-flex','vm-wit','pr-rvs','af-sil','af-pri','af-wat']},
+  {id:'toilet',name:'Toilet',emoji:'🚽',sug:['tl-std','vm-gri','af-sil','pr-rvs']},
+  {id:'keuken',name:'Keuken',emoji:'🍳',sug:['tl-std','vm-gri','vm-cln','pr-rvs','af-pri']},
+  {id:'woonkamer',name:'Woonkamer',emoji:'🛋️',sug:['tl-xxl','vm-ant','ov-mat','gr-krx','gr-niv']},
+  {id:'terras',name:'Terras',emoji:'🌿',sug:['tl-bui','vm-gri','ov-mat','pr-alu']},
+  {id:'trap',name:'Trap',emoji:'🪜',sug:['tl-flex','pr-sbt','vm-gri','af-sil']},
+];
+
+let cats=[],prods=[],cart={},manuren=[],muId=0,activeRoom=null,activeCat='Alle',expandedProd=null;
+
+function load(){
+  try{cats=JSON.parse(localStorage.getItem('bt3_cats'))||[...DEFAULT_CATS];}catch{cats=[...DEFAULT_CATS];}
+  try{prods=JSON.parse(localStorage.getItem('bt3_prods'))||JSON.parse(JSON.stringify(DEFAULT_PRODS));}catch{prods=JSON.parse(JSON.stringify(DEFAULT_PRODS));}
+}
+function save(){
+  try{localStorage.setItem('bt3_cats',JSON.stringify(cats));localStorage.setItem('bt3_prods',JSON.stringify(prods));}catch{}
+  const f=document.getElementById('save-flash');if(f){f.classList.add('show');setTimeout(()=>f.classList.remove('show'),1800);}
+}
+function resetDefault(){
+  if(!confirm('Alle producten en categorieën terugzetten naar standaard?'))return;
+  cats=[...DEFAULT_CATS];prods=JSON.parse(JSON.stringify(DEFAULT_PRODS));
+  save();renderAll();renderBeheer();showToast('Standaard hersteld');
+}
+
+function switchView(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('bnav-'+v).classList.add('active');
+  document.getElementById('scroll-area').scrollTop=0;
+  if(v==='beheer')renderBeheer();
+}
+
+function openSheet(){document.getElementById('sheet').classList.add('open');document.getElementById('overlay').classList.add('open');}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
+function renderRooms(){
+  document.getElementById('rooms-scroll').innerHTML=ROOMS.map(r=>`
+    <div class="room-pill ${activeRoom===r.id?'active':''}" onclick="selectRoom('${r.id}')">
+      <span class="room-emoji">${r.emoji}</span>
+      <div class="room-name">${r.name}</div>
+    </div>`).join('');
+}
+
+function selectRoom(id){
+  activeRoom=id;activeCat='Aanbevolen';
+  const r=ROOMS.find(x=>x.id===id);
+  const b=document.getElementById('sug-banner');
+  b.classList.add('show');
+  document.getElementById('sug-text').textContent='Aanbevolen voor '+r.name.toLowerCase();
+  renderRooms();renderChips();renderProducts();
+}
+
+function renderChips(){
+  const all=['Alle','Aanbevolen',...cats];
+  document.getElementById('chips-scroll').innerHTML=all.map(c=>`
+    <div class="chip ${activeCat===c?'active':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+}
+
+function setCat(c){activeCat=c;renderChips();renderProducts();}
+
+function renderProducts(){
+  const room=ROOMS.find(r=>r.id===activeRoom);
+  const sug=room?room.sug:[];
+  let list=activeCat==='Aanbevolen'?prods.filter(p=>sug.includes(p.id))
+    :activeCat==='Alle'?prods:prods.filter(p=>p.cat===activeCat);
+  if(activeCat==='Alle'&&room)list=[...list].sort((a,b)=>(sug.includes(a.id)?0:1)-(sug.includes(b.id)?0:1));
+  document.getElementById('prod-label').textContent=activeCat==='Alle'?'Alle producten':activeCat;
+  document.getElementById('products-grid').innerHTML=list.map(p=>{
+    const isSug=sug.includes(p.id),inCart=!!cart[p.id],qty=cart[p.id]?.qty||1;
+    return `<div class="pcard ${isSug&&activeCat!=='Aanbevolen'?'suggested':''} ${inCart?'in-cart':''}">
+      ${isSug&&activeCat!=='Aanbevolen'?'<div class="sug-dot"></div>':''}
+      <span class="pcard-emoji">${p.emoji||'📦'}</span>
+      <div class="pcard-name">${p.name}</div>
+      <div class="pcard-unit">${p.unit||'stuk'}</div>
+      <div class="pcard-price">€ ${p.price.toFixed(2).replace('.',',')}</div>
+      <div class="pcard-controls">
+        <button class="pqty-btn" onclick="pChg('${p.id}',-1)">−</button>
+        <input class="pqty-inp" type="number" min="1" value="${qty}" id="pq-${p.id}" onchange="pSet('${p.id}',this.value)">
+        <button class="padd-btn ${inCart?'added':''}" onclick="addCart('${p.id}')">${inCart?'✓':'+'}</button>
+      </div></div>`;
+  }).join('');
+}
+
+function pChg(id,d){const e=document.getElementById('pq-'+id);if(e)e.value=Math.max(1,parseInt(e.value)+d);}
+function pSet(id,v){const e=document.getElementById('pq-'+id);if(e)e.value=Math.max(1,parseInt(v)||1);}
+
+function addCart(id){
+  const p=prods.find(x=>x.id===id),qty=parseInt(document.getElementById('pq-'+id)?.value)||1;
+  if(!p)return;
+  cart[id]=cart[id]?{...cart[id],qty:cart[id].qty+qty}:{...p,qty};
+  updateCartUI();renderProducts();showToast(p.name+' toegevoegd');
+}
+
+function updateCartUI(){
+  const items=Object.values(cart);
+  document.getElementById('cart-num').textContent=items.reduce((s,i)=>s+i.qty,0)+manuren.length;
+  document.getElementById('print-btn').disabled=(items.length===0&&manuren.length===0);
+  document.getElementById('oitems').innerHTML=items.length?items.map(i=>`
+    <div class="oitem">
+      <div class="oitem-info">
+        <div class="oitem-name">${i.name}</div>
+        <div class="oitem-detail">${i.unit||'stuk'} · €${i.price.toFixed(2).replace('.',',')}/st</div>
+      </div>
+      <div class="oitem-ctrls">
+        <button class="oqty-btn" onclick="oChg('${i.id}',-1)">−</button>
+        <input class="oqty-inp" type="number" min="1" value="${i.qty}" oninput="oSet('${i.id}',this.value)">
+        <button class="oqty-btn" onclick="oChg('${i.id}',1)">+</button>
+      </div>
+      <div class="oitem-price">€ ${(i.qty*i.price).toFixed(2).replace('.',',')}</div>
+      <button class="oitem-del" onclick="delCart('${i.id}')">×</button>
+    </div>`).join(''):'<div class="oempty">Nog geen materialen toegevoegd</div>';
+  updateTotals();
+}
+
+function oChg(id,d){if(!cart[id])return;cart[id].qty=Math.max(1,cart[id].qty+d);updateCartUI();renderProducts();}
+function oSet(id,v){if(!cart[id])return;cart[id].qty=Math.max(1,parseInt(v)||1);updateTotals();}
+function delCart(id){delete cart[id];updateCartUI();renderProducts();}
+
+function addMu(){
+  const desc=document.getElementById('mu-desc').value||'Arbeid';
+  const uren=parseFloat(document.getElementById('mu-uren').value)||8;
+  const tarief=parseFloat(document.getElementById('mu-tarief').value)||56;
+  manuren.push({id:muId++,desc,uren,tarief});
+  document.getElementById('mu-desc').value='';
+  renderMu();updateTotals();updateCartUI();showToast(desc+' toegevoegd');
+}
+function delMu(id){manuren=manuren.filter(m=>m.id!==id);renderMu();updateTotals();updateCartUI();}
+function updMu(id,f,v){const m=manuren.find(x=>x.id===id);if(m){m[f]=parseFloat(v)||0;renderMu();updateTotals();}}
+function renderMu(){
+  document.getElementById('mu-rows').innerHTML=manuren.map(m=>`
+    <div class="mu-row">
+      <div class="mu-name">${m.desc}</div>
+      <input class="mu-inp" type="number" min="0.5" step="0.5" value="${m.uren}" style="width:40px;" oninput="updMu(${m.id},'uren',this.value)">
+      <span style="font-size:10px;color:var(--muted)">u×</span>
+      <input class="mu-inp" type="number" min="0" value="${m.tarief}" style="width:46px;" oninput="updMu(${m.id},'tarief',this.value)">
+      <span style="font-size:10px;color:var(--muted)">€</span>
+      <div class="mu-tot">€ ${(m.uren*m.tarief).toFixed(2).replace('.',',')}</div>
+      <button class="mu-del" onclick="delMu(${m.id})">×</button>
+    </div>`).join('');
+}
+
+function updateTotals(){
+  const items=Object.values(cart);
+  const matR=items.reduce((s,i)=>s+i.qty*i.price,0);
+  const marge=parseFloat(document.getElementById('marge-inp').value)||0;
+  const matM=matR*(1+marge/100),arb=manuren.reduce((s,m)=>s+m.uren*m.tarief,0);
+  const excl=matM+arb,btw=excl*.21,incl=excl+btw;
+  const f=n=>'€ '+n.toFixed(2).replace('.',',');
+  document.getElementById('t-mat-raw').textContent=f(matR);
+  document.getElementById('t-mat').textContent=f(matM);
+  document.getElementById('t-arb').textContent=f(arb);
+  document.getElementById('t-excl').textContent=f(excl);
+  document.getElementById('t-btw').textContent=f(btw);
+  document.getElementById('t-incl').textContent=f(incl);
+}
+
+// BEHEER
+function renderBeheer(){renderCatPills();renderProdList();syncNpCat();syncBCatFilter();}
+
+function renderCatPills(){
+  document.getElementById('cat-pills').innerHTML=cats.map(c=>`
+    <div class="cat-pill">
+      <span>${c}</span>
+      <button class="cat-pill-del" onclick="delCat('${c}')">×</button>
+    </div>`).join('');
+}
+
+function addCat(){
+  const inp=document.getElementById('new-cat-inp'),name=inp.value.trim();
+  if(!name)return;
+  if(cats.includes(name)){showToast('Bestaat al');return;}
+  cats.push(name);inp.value='';
+  save();renderCatPills();syncNpCat();syncBCatFilter();renderChips();
+  showToast('"'+name+'" toegevoegd');
+}
+
+function delCat(c){
+  const cnt=prods.filter(p=>p.cat===c).length;
+  if(cnt>0&&!confirm(`"${c}" heeft ${cnt} producten. Toch verwijderen?`))return;
+  cats=cats.filter(x=>x!==c);prods.forEach(p=>{if(p.cat===c)p.cat='';});
+  save();renderBeheer();renderChips();showToast('Verwijderd');
+}
+
+function syncNpCat(){
+  const s=document.getElementById('np-cat');
+  if(s)s.innerHTML=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function syncBCatFilter(){
+  const s=document.getElementById('b-cat-filter');
+  if(!s)return;
+  const cur=s.value;
+  s.innerHTML='<option value="">Alle</option>'+cats.map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('');
+}
+
+function toggleNieuw(){
+  const b=document.getElementById('nieuw-blok');b.classList.toggle('open');
+  if(b.classList.contains('open'))document.getElementById('np-naam').focus();
+}
+
+function saveNieuw(){
+  const name=document.getElementById('np-naam').value.trim();
+  if(!name){showToast('Vul een naam in');return;}
+  const emoji=document.getElementById('np-emoji').value.trim()||'📦';
+  const cat=document.getElementById('np-cat').value;
+  const unit=document.getElementById('np-unit').value.trim()||'stuk';
+  const price=parseFloat(document.getElementById('np-prijs').value)||0;
+  prods.push({id:'u'+Date.now(),emoji,name,cat,unit,price});
+  ['np-emoji','np-naam','np-unit','np-prijs'].forEach(id=>document.getElementById(id).value='');
+  save();renderProdList();renderProducts();
+  document.getElementById('nieuw-blok').classList.remove('open');
+  showToast('"'+name+'" toegevoegd');
+}
+
+function renderProdList(){
+  const search=(document.getElementById('b-search')?.value||'').toLowerCase();
+  const catF=document.getElementById('b-cat-filter')?.value||'';
+  const list=prods.filter(p=>{
+    const ms=!search||p.name.toLowerCase().includes(search)||(p.cat||'').toLowerCase().includes(search);
+    const mc=!catF||p.cat===catF;
+    return ms&&mc;
+  });
+  document.getElementById('plist').innerHTML=list.map(p=>`
+    <div class="pbcard">
+      <div class="pbcard-head" onclick="toggleExp('${p.id}')">
+        <div class="pb-emoji">${p.emoji||'📦'}</div>
+        <div class="pb-info">
+          <div class="pb-name">${p.name}</div>
+          <div class="pb-meta">${p.cat||'—'} · ${p.unit||'stuk'}</div>
+        </div>
+        <div class="pb-price">€ ${p.price.toFixed(2).replace('.',',')}</div>
+        <div class="pb-arrow">${expandedProd===p.id?'▲':'▼'}</div>
+      </div>
+      <div class="pbcard-body ${expandedProd===p.id?'open':''}" id="pbe-${p.id}">
+        <div class="pb-field"><label>Emoji / icoon</label><input value="${p.emoji||''}" id="pe-em-${p.id}" placeholder="📦"></div>
+        <div class="pb-field"><label>Naam</label><input value="${p.name}" id="pe-nm-${p.id}"></div>
+        <div class="pb-field"><label>Categorie</label>
+          <select id="pe-ct-${p.id}">${cats.map(c=>`<option value="${c}" ${c===p.cat?'selected':''}>${c}</option>`).join('')}<option value="" ${!p.cat?'selected':''}>— geen —</option></select>
+        </div>
+        <div class="pb-field"><div class="frow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><label>Eenheid</label><input value="${p.unit||''}" id="pe-un-${p.id}" placeholder="stuk"></div>
+          <div><label>Prijs (€)</label><input class="mono" type="number" min="0" step="0.01" value="${p.price}" id="pe-pr-${p.id}"></div>
+        </div></div>
+        <div class="pb-actions">
+          <button class="btn-save" onclick="saveProd('${p.id}')">Opslaan</button>
+          <button class="btn-del" onclick="delProd('${p.id}')">Verwijderen</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleExp(id){expandedProd=expandedProd===id?null:id;renderProdList();}
+
+function saveProd(id){
+  const p=prods.find(x=>x.id===id);if(!p)return;
+  p.emoji=document.getElementById('pe-em-'+id).value.trim()||'📦';
+  p.name=document.getElementById('pe-nm-'+id).value.trim()||p.name;
+  p.cat=document.getElementById('pe-ct-'+id).value;
+  p.unit=document.getElementById('pe-un-'+id).value.trim()||'stuk';
+  p.price=parseFloat(document.getElementById('pe-pr-'+id).value)||0;
+  save();renderProdList();renderProducts();showToast('✓ Opgeslagen');
+}
+
+function delProd(id){
+  const p=prods.find(x=>x.id===id);
+  if(!p||!confirm(`"${p.name}" verwijderen?`))return;
+  prods=prods.filter(x=>x.id!==id);delete cart[id];
+  save();renderProdList();renderProducts();updateCartUI();showToast('Verwijderd');
+}
+
+function openPrint(){
+  const items=Object.values(cart);
+  const marge=parseFloat(document.getElementById('marge-inp').value)||0;
+  const matR=items.reduce((s,i)=>s+i.qty*i.price,0);
+  const matM=matR*(1+marge/100),arb=manuren.reduce((s,m)=>s+m.uren*m.tarief,0);
+  const excl=matM+arb,btw=excl*.21,incl=excl+btw;
+  const f=n=>'&euro; '+n.toFixed(2).replace('.',',');
+  const bedrijf=document.getElementById('f-bedrijf').value||'Bos Tegelwerken';
+  const fAdres=document.getElementById('f-adres').value||'';
+  const fTel=document.getElementById('f-tel').value||'';
+  const fKvk=document.getElementById('f-kvk').value||'';
+  const klant=document.getElementById('f-klant').value||'Klant';
+  const kAdres=document.getElementById('f-klant-adres').value||'';
+  const nr=document.getElementById('f-nr').value||'2025-001';
+  const datum=document.getElementById('f-datum').value;
+  const omschr=document.getElementById('f-omschr').value||'Tegelwerkzaamheden';
+  const ruimte=activeRoom?ROOMS.find(r=>r.id===activeRoom)?.name||'':'';
+  const matRows=items.map(i=>`<tr><td>${i.name}</td><td class="c">${i.unit||'stuk'}</td><td class="c">${i.qty}</td><td class="r">${f(i.price)}</td><td class="r b">${f(i.qty*i.price)}</td></tr>`).join('');
+  const muRows=manuren.map(m=>`<tr><td>${m.desc}</td><td class="c">uur</td><td class="c">${m.uren}</td><td class="r">${f(m.tarief)}/u</td><td class="r b">${f(m.uren*m.tarief)}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8"><title>Offerte ${nr} - ${klant}</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;font-size:10pt;color:#1a1a1a;}
+  .page{max-width:210mm;margin:0 auto;padding:12mm 15mm;}
+  .hdr{background:#C0111F;color:white;padding:14px 18px;border-radius:5px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .hdr-co{font-size:16pt;font-weight:bold;}.hdr-sub{font-size:8pt;opacity:.8;margin-top:2px;}
+  .hdr-r{text-align:right;}.hdr-lbl{font-size:20pt;font-weight:bold;letter-spacing:1px;}.hdr-meta{font-size:8pt;opacity:.8;margin-top:3px;}
+  .info-row{display:flex;gap:14px;margin-bottom:15px;}.ibox{flex:1;background:#f5f5f5;border-radius:4px;padding:10px 13px;}
+  .ibox-t{font-size:7pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:5px;}
+  .ibox p{font-size:9pt;margin-bottom:2px;}.ibox .nm{font-weight:bold;font-size:10.5pt;color:#111;}
+  .sec{font-size:7pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;color:#888;margin:11px 0 5px;}
+  table{width:100%;border-collapse:collapse;margin-bottom:4px;}
+  thead tr{background:#161616;color:white;}thead th{padding:6px 8px;font-size:8pt;text-align:left;}
+  thead th.c{text-align:center;}thead th.r{text-align:right;}
+  tbody tr:nth-child(even){background:#f9f9f9;}tbody td{padding:5px 8px;font-size:9pt;border-bottom:.5px solid #e8e8e8;}
+  td.c{text-align:center;}td.r{text-align:right;}td.b{font-weight:bold;}
+  .sub-row td{background:#efefef;font-weight:bold;font-size:8.5pt;color:#555;}
+  .totals{display:flex;justify-content:flex-end;margin:11px 0 15px;}.tbox{width:235px;}
+  .tr{display:flex;justify-content:space-between;font-size:9pt;color:#666;margin-bottom:3px;}
+  .tr span:last-child{font-family:monospace;}.tr.s{color:#111;font-weight:600;}
+  .tfinal{display:flex;justify-content:space-between;background:#C0111F;color:white;padding:8px 11px;border-radius:5px;margin-top:6px;font-weight:bold;font-size:11pt;}
+  .tfinal span:last-child{font-family:monospace;}
+  .ftr-boxes{display:flex;gap:14px;}.fbox{flex:1;background:#f5f5f5;border-radius:4px;padding:9px 12px;}
+  .fbox-t{font-size:7pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:4px;}.fbox p{font-size:8pt;color:#555;margin-bottom:2px;}
+  .pgftr{margin-top:14px;border-top:.5px solid #ddd;padding-top:8px;text-align:center;font-size:7pt;color:#999;}.pgftr strong{color:#C0111F;}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}@page{size:A4;margin:0;}.page{padding:10mm 12mm;}}</style></head>
+  <body><div class="page">
+  <div class="hdr">
+    <div><div class="hdr-co">${bedrijf}</div><div class="hdr-sub">${[fAdres,fTel?'Tel: '+fTel:'',fKvk?'KVK: '+fKvk:''].filter(Boolean).join(' | ')}</div></div>
+    <div class="hdr-r"><div class="hdr-lbl">OFFERTE</div><div class="hdr-meta">Nr. ${nr} &nbsp;|&nbsp; ${datum}</div></div>
+  </div>
+  <div class="info-row">
+    <div class="ibox"><div class="ibox-t">Klantgegevens</div><p class="nm">${klant}</p>${kAdres?`<p>${kAdres}</p>`:''}${ruimte?`<p style="color:#888;font-size:8pt;margin-top:3px;">Ruimte: ${ruimte}</p>`:''}</div>
+    <div class="ibox"><div class="ibox-t">Omschrijving werk</div><p class="nm">${omschr}</p><p style="color:#888;font-size:8pt;margin-top:3px;">Offerte geldig 30 dagen na datum</p></div>
+  </div>
+  ${items.length?`<div class="sec">Materiaalspecificatie</div><table><thead><tr><th>Omschrijving</th><th class="c">Eenheid</th><th class="c">Aantal</th><th class="r">Prijs/eenheid</th><th class="r">Totaal</th></tr></thead>
+  <tbody>${matRows}<tr class="sub-row"><td colspan="4" style="text-align:right;padding-right:10px;">Subtotaal materiaal</td><td class="r">&euro; ${matR.toFixed(2).replace('.',',')}</td></tr>
+  ${marge>0?`<tr class="sub-row"><td colspan="4" style="text-align:right;padding-right:10px;">Incl. marge ${marge}%</td><td class="r">&euro; ${matM.toFixed(2).replace('.',',')}</td></tr>`:''}</tbody></table>`:''}
+  ${manuren.length?`<div class="sec">Arbeid / Manuren</div><table><thead><tr><th>Omschrijving</th><th class="c">Eenheid</th><th class="c">Aantal</th><th class="r">Tarief</th><th class="r">Totaal</th></tr></thead>
+  <tbody>${muRows}<tr class="sub-row"><td colspan="4" style="text-align:right;padding-right:10px;">Subtotaal arbeid</td><td class="r">&euro; ${arb.toFixed(2).replace('.',',')}</td></tr></tbody></table>`:''}
+  <div class="totals"><div class="tbox">
+  ${items.length?`<div class="tr"><span>Materiaal (incl. ${marge}% marge)</span><span>${f(matM)}</span></div>`:''}
+  ${manuren.length?`<div class="tr"><span>Arbeid totaal</span><span>${f(arb)}</span></div>`:''}
+  <div class="tr s" style="border-top:.5px solid #ddd;padding-top:5px;margin-top:4px;"><span>Subtotaal excl. BTW</span><span>${f(excl)}</span></div>
+  <div class="tr"><span>BTW 21%</span><span>${f(btw)}</span></div>
+  <div class="tfinal"><span>Totaal incl. BTW</span><span>${f(incl)}</span></div></div></div>
+  <div class="ftr-boxes">
+    <div class="fbox"><div class="fbox-t">Betalingsvoorwaarden</div><p>Betaling binnen 14 dagen na factuurdatum.</p><p>Aanbetaling 30% bij akkoord offerte.</p></div>
+    <div class="fbox"><div class="fbox-t">Akkoord offerte</div><p>Datum: ___________________</p><p>Handtekening: ____________</p></div>
+  </div>
+  <div class="pgftr">${bedrijf} &mdash; <strong>Bedankt voor uw vertrouwen!</strong></div>
+  </div><script>window.onload=function(){window.print();}<\/script></body></html>`;
+  const w=window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();}
+  else alert('Pop-up geblokkeerd. Sta pop-ups toe voor dit bestand.');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function renderAll(){renderRooms();renderChips();renderProducts();}
+
+load();renderAll();
+document.getElementById('f-datum').value=new Date().toLocaleDateString('nl-NL');
+updateTotals();
+</script>
+</body>
+</html>
